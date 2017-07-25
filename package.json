@@ -1,0 +1,9 @@
+{
+  "name": "mulberry-server",
+  "version": "0.1.0",
+  "description": "Server-side libraries for Mulberry game platform.",
+  "main": "index.js",
+  "repository": "git@github.com:dane-johnson/mulberry-server",
+  "author": "Dane Johnson",
+  "license": "MIT"
+}
