@@ -25,7 +25,7 @@ http.listen port, ->
   console.log 'Listening on port %d.', port
 
 module.exports =
-  emit = io.emit.bind io
-  on = io.emit.bind io
+  emit: io.emit.bind io
+  on: io.emit.bind io
 
 
