@@ -26,6 +26,6 @@ http.listen port, ->
 
 module.exports =
   emit = io.emit.bind io
-  on = io.emit.bing io
+  on = io.emit.bind io
 
 
