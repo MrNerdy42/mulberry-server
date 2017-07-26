@@ -8,8 +8,9 @@ _ = require 'lodash'
 uuid = require 'uuid'
 
 players = {}
+gameboard = ''
 
-serve = (playerbinding = _.noop, screenbinding = _.noop) ->
+serve = (registerPlayerActions = _.noop) ->
   config = null
   if fs.existsSync 'mulberry.config.json'
     config = JSON.parse fs.readFileSync 'mulberry.config.json', 'utf8'
@@ -28,7 +29,12 @@ serve = (playerbinding = _.noop, screenbinding = _.noop) ->
   io.on 'connection', (socket) ->
     id = uuid.v4()
     socket.emit 'uuid', id
-    players[id] = {}
+    players[id] =
+      socket: socket 
+    socket.on 'player', ->
+      registerPlayerActions socket
+    socket.on 'screen', ->
+      gameboard = id
 
   port = if config? and config.port? then config.port else 8080
   http.listen port, ->
@@ -40,4 +46,3 @@ serve = (playerbinding = _.noop, screenbinding = _.noop) ->
 
 module.exports =
   serve: serve
-
