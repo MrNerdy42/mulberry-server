@@ -4,28 +4,40 @@ http = require( 'http' ).Server app
 io = require( 'socket.io' ) http
 fs = require 'fs'
 path = require 'path'
+_ = require 'lodash'
+uuid = require 'uuid'
 
-config = null
-if fs.existsSync 'mulberry.config.json'
-  config = JSON.parse fs.readFileSync 'mulberry.config.json', 'utf8'
+players = {}
 
-buildDir = if config? and config.buildDir? then config.buildDir else 'build'
-app.use express.static buildDir
+serve = (playerbinding = _.noop, screenbinding = _.noop) ->
+  config = null
+  if fs.existsSync 'mulberry.config.json'
+    config = JSON.parse fs.readFileSync 'mulberry.config.json', 'utf8'
 
-entry = if config? and config.entry? then config.entry else 'index.html'
-app.get '/', (req, res) ->
-  res.sendFile path.join process.cwd(), buildDir, entry
+  buildDir = if config? and config.buildDir? then config.buildDir else 'build'
+  app.use express.static buildDir
 
-player = if config? and config.player then config.player else 'player.html'
-app.get /[A-Z]{4}/, (req, res) ->
-  res.sendFile path.join process.cwd(), buildDir, player
+  entry = if config? and config.entry? then config.entry else 'index.html'
+  app.get '/', (req, res) ->
+    res.sendFile path.join process.cwd(), buildDir, entry
 
-port = if config? and config.port? then config.port else 8080
-http.listen port, ->
-  console.log 'Listening on port %d.', port
+  player = if config? and config.player then config.player else 'player.html'
+  app.get /[A-Z]{4}/, (req, res) ->
+    res.sendFile path.join process.cwd(), buildDir, player
+
+  io.on 'connection', (socket) ->
+    id = uuid.v4()
+    socket.emit 'uuid', id
+    players[id] = {}
+
+  port = if config? and config.port? then config.port else 8080
+  http.listen port, ->
+    console.log 'Listening on port %d.', port
+
+  return
+    emit: io.emit.bind io
+    on: io.on.bind io
 
 module.exports =
-  emit: io.emit.bind io
-  on: io.on.bind io
-
+  serve: serve
 
