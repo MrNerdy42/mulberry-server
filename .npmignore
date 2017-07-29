@@ -1,0 +1,6 @@
+# Ignore coffeescript source files
+src/
+
+# Ignore yarn stuff
+yarn.lock
+yarn-error.log
