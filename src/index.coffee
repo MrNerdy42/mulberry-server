@@ -7,10 +7,12 @@ path = require 'path'
 _ = require 'lodash'
 uuid = require 'uuid'
 
-players = {}
+Player = require './player'
+
+players = []
 gameboard = ''
 
-serve = (registerPlayerActions = _.noop) ->
+serve = (playerActions = {}) ->
   config = null
   if fs.existsSync 'mulberry.config.json'
     config = JSON.parse fs.readFileSync 'mulberry.config.json', 'utf8'
@@ -18,21 +20,23 @@ serve = (registerPlayerActions = _.noop) ->
   buildDir = if config? and config.buildDir? then config.buildDir else 'build'
   app.use express.static buildDir
 
-  entry = if config? and config.entry? then config.entry else 'index.html'
+  entryPage = if config? and config.entry? then config.entry else 'index.html'
   app.get '/', (req, res) ->
-    res.sendFile path.join process.cwd(), buildDir, entry
+    res.sendFile path.join process.cwd(), buildDir, entryPage
 
-  player = if config? and config.player then config.player else 'player.html'
+  playerPage = if config? and config.player then config.player else 'player.html'
   app.get /[A-Z]{4}/, (req, res) ->
-    res.sendFile path.join process.cwd(), buildDir, player
+    res.sendFile path.join process.cwd(), buildDir, playerPage
 
   io.on 'connection', (socket) ->
     id = uuid.v4()
     socket.emit 'uuid', id
-    players[id] =
-      socket: socket 
+    player = new Player socket, id
+    players.push player
     socket.on 'player', ->
-      registerPlayerActions socket
+      _.forIn playerActions, (fn, action) ->
+        console.log 'Binding fn for action ' + action
+        player.on action, fn
     socket.on 'screen', ->
       gameboard = id
 
@@ -46,3 +50,4 @@ serve = (registerPlayerActions = _.noop) ->
 
 module.exports =
   serve: serve
+  players: players
