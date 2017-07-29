@@ -1,6 +1,6 @@
 _ = require 'lodash'
 
-class Player
+class Screen
   constructor: (@_socket, @uuid) ->
     @state = {}
 
@@ -8,10 +8,13 @@ class Player
     _.assign @state, data
     @_socket.emit 'update', data
 
+class Player extends Screen
   on: (action, fn) ->
     @_socket.on action, ((data) ->
       fn @, data
     ).bind @
 
-module.exports = Player
-
+module.exports = {
+  Screen
+  Player
+}

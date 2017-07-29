@@ -7,9 +7,13 @@ path = require 'path'
 _ = require 'lodash'
 uuid = require 'uuid'
 
-Player = require './player'
+{Screen, Player} = require './client'
 
 players = []
+
+updateAll = (data) ->
+  _.forEach players, (player) ->
+    player.update data
 
 # Creates a server, and binds actions that are common to all players
 serve = (playerActions = {}) ->
@@ -51,6 +55,8 @@ serve = (playerActions = {}) ->
     emit: io.emit.bind io
     on: io.on.bind io
 
-module.exports =
-  serve: serve
-  players: players
+module.exports = {
+  serve
+  players
+  updateAll
+}
