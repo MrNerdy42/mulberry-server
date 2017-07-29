@@ -1,6 +1,6 @@
 {
   "name": "mulberry-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Server-side libraries for Mulberry game platform.",
   "main": "lib/",
   "repository": "git@github.com:dane-johnson/mulberry-server",
