@@ -10,9 +10,11 @@ uuid = require 'uuid'
 Player = require './player'
 
 players = []
-gameboard = ''
 
+# Creates a server, and binds actions that are common to all players
 serve = (playerActions = {}) ->
+  # If there is a config file present, load it and use it to initialize some
+  # constants.
   config = null
   if fs.existsSync 'mulberry.config.json'
     config = JSON.parse fs.readFileSync 'mulberry.config.json', 'utf8'
@@ -28,22 +30,23 @@ serve = (playerActions = {}) ->
   app.get /[A-Z]{4}/, (req, res) ->
     res.sendFile path.join process.cwd(), buildDir, playerPage
 
+  # When a socket connects
   io.on 'connection', (socket) ->
-    id = uuid.v4()
-    socket.emit 'uuid', id
-    player = new Player socket, id
-    players.push player
+    # If it is a player, bind the common player actions
     socket.on 'player', ->
+      id = uuid.v4()
+      socket.emit 'uuid', id
+      player = new Player socket, id
+      players.push player
       _.forIn playerActions, (fn, action) ->
-        console.log 'Binding fn for action ' + action
         player.on action, fn
-    socket.on 'screen', ->
-      gameboard = id
 
+  # Launch the server
   port = if config? and config.port? then config.port else 8080
   http.listen port, ->
     console.log 'Listening on port %d.', port
 
+  # Return emit and on functions for additional configuration
   return
     emit: io.emit.bind io
     on: io.on.bind io

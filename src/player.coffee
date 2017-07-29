@@ -9,8 +9,9 @@ class Player
     @_socket.emit 'update', data
 
   on: (action, fn) ->
-    @_socket.on action, (data) ->
+    @_socket.on action, ((data) ->
       fn @, data
+    ).bind @
 
 module.exports = Player
 
