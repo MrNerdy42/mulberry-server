@@ -8,6 +8,10 @@ class Screen
     _.assign @state, data
     @_socket.emit 'update', data
 
+  reset: ->
+    @state = {}
+    @_socket.emit 'reset'
+
 class Player extends Screen
   on: (action, fn) ->
     @_socket.on action, ((data) ->
