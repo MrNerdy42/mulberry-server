@@ -30,8 +30,8 @@ serve = (playerActions = {}) ->
   # If there is a config file present, load it and use it to initialize some
   # constants.
   config = null
-  if fs.existsSync 'mulberry.config.json'
-    config = JSON.parse fs.readFileSync 'mulberry.config.json', 'utf8'
+  if fs.existsSync 'mulberry.config.js'
+    config = module.parent.require './mulberry.config'
 
   buildDir = if config? and config.buildDir? then config.buildDir else 'build'
   app.use express.static buildDir
