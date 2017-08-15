@@ -46,18 +46,25 @@ serve = (playerActions = {}) ->
 
   # When a socket connects
   io.on 'connection', (socket) ->
-    id = uuid.v4()
-    socket.emit 'uuid', id
     
     # If it is a player, bind the common player actions
-    socket.on 'player', ->
-      player = new Player socket, id
-      players.push player
-      _.forIn playerActions, (fn, action) ->
-        player.on action, fn
+    socket.on 'player', data ->
+      # If the client sends an id, see if it is associated with an existing player.
+      # If so, migrate the socket and sync the client, else make a new player
+      player = if data? then _.find players, _.matchesProperty 'uuid', data else null
+      if player?
+        player.migrateSocket socket
+        player.sync()
+      else
+        player = new Player socket, id
+        players.push player
+        _.forIn playerActions, (fn, action) ->
+          player.on action, fn
         
     # If it is the screen, just save the ref
     socket.on 'screen', ->
+      id = uuid.v4()
+      socket.emit 'uuid', id
       screen = new Screen socket, id
       
   # Launch the server
