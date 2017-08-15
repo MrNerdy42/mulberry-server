@@ -1,7 +1,7 @@
 _ = require 'lodash'
 
 class Screen
-  constructor: (@_socket, @uuid) ->
+  constructor: (@_socket) ->
     @state = {}
 
   update: (data) ->
@@ -18,6 +18,9 @@ class Screen
   migrateSocket: (@_socket) ->
     
 class Player extends Screen
+  constructor: (@_socket, @uuid) ->
+    @state = {}
+    
   on: (action, fn) ->
     @_socket.on action, ((data) ->
       fn @, data

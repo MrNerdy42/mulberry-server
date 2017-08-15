@@ -10,20 +10,20 @@ uuid = require 'uuid'
 {Screen, Player} = require './client'
 
 players = []
-screen = undefined
+screens = []
 
-updateScreen = (data) ->
-  screen.update data if screen?
+updateScreens = (data) ->
+  _.forEach screens, (screen) ->
+    screen.update data
 
 updateAll = (data) ->
-  updateScreen data
+  updateScreens data
   _.forEach players, (player) ->
     player.update data
 
 reset = () ->
-  screen.reset() if screen?
-  _.forEach players, (player) ->
-    player.reset()
+  _.forEach _.concat(players, screens), (client) ->
+    client.reset()
 
 # Creates a server, and binds actions that are common to all players
 serve = (playerActions = {}) ->
@@ -66,9 +66,7 @@ serve = (playerActions = {}) ->
         
     # If it is the screen, just save the ref
     socket.on 'screen', ->
-      id = uuid.v4()
-      socket.emit 'uuid', id
-      screen = new Screen socket, id
+      screens.push new Screen socket
       
   # Launch the server
   port = if config? and config.port? then config.port else 8080
@@ -83,7 +81,7 @@ serve = (playerActions = {}) ->
 module.exports = {
   serve
   players
-  updateScreen
+  updateScreens
   updateAll
   reset
 }
