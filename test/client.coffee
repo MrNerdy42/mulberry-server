@@ -13,7 +13,7 @@ describe 'Screen', ->
 
   describe '.constructor', ->
     it 'creates a new screen with an empty state', ->
-      expect(myScreen.state).to.eql({})
+      expect(myScreen.state).to.be.empty()
 
   describe '.update', ->
     it 'assigns data to he state', ->
@@ -33,7 +33,7 @@ describe 'Screen', ->
     it 'resets the state', ->
       myScreen.state = {name: 'Marvin the Paranoid Android'}
       myScreen.reset()
-      expect(myScreen.state).to.eql({})
+      expect(myScreen.state).to.be.empty()
     it 'emits a reset call', ->
       myScreen.reset()
       expect(myScreen._socket.emit.withArgs 'reset').to.be.ok()
